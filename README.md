@@ -8,6 +8,8 @@
 
 Automated API tests for the **ATS (Applicant Tracking System) Recruitment** backend. Built with Jest and Supertest, the suite exercises the live REST API end to end: users, master data, job postings, applicants and their hiring stages, skill tests, document templates, merchants, and file uploads.
 
+> **Project status:** the target host `api.andromeda.axeleration.id` no longer resolves (NXDOMAIN), so the suite cannot currently pass against a live backend. It is kept as-is for reference. Once the API is available again, update `BASE_URL` in `data/url.js` and supply a fresh token. The previously committed token expired in 2023 and was removed from the repository and its history.
+
 ## Table of contents
 
 - [Overview](#overview)
