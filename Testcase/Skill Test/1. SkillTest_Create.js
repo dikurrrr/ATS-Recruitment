@@ -1,7 +1,7 @@
 const request = require('supertest');
 const { createSkill } = require('../../data/user/createSkill');
 const { BASE_URL } = require('../../data/url')
-const data = require('../../data/token.json')
+const data = require('../../data/auth')
 
 describe("Superadmin Create Skill Test", () => {
   it("admin succeed Create Skill Test", async () => {

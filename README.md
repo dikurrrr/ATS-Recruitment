@@ -1,92 +1,162 @@
-# privy-jest
+# ATS Recruitment — API Test Suite
 
+![ATS Recruitment](banner.jpg)
 
+![Jest](https://img.shields.io/badge/tested%20with-Jest%2029-C21325?logo=jest&logoColor=white)
+![Supertest](https://img.shields.io/badge/HTTP-Supertest-green)
+![License: ISC](https://img.shields.io/badge/license-ISC-blue)
+
+Automated API tests for the **ATS (Applicant Tracking System) Recruitment** backend. Built with Jest and Supertest, the suite exercises the live REST API end to end: users, master data, job postings, applicants and their hiring stages, skill tests, document templates, merchants, and file uploads.
+
+## Table of contents
+
+- [Overview](#overview)
+- [Test coverage](#test-coverage)
+- [Project structure](#project-structure)
+- [Getting started](#getting-started)
+- [Running tests](#running-tests)
+- [HTML report](#html-report)
+- [Good to know](#good-to-know)
+- [Contributing](#contributing)
+- [License](#license)
+
+## Overview
+
+| | |
+|---|---|
+| Target API | `https://api.andromeda.axeleration.id` (set in `data/url.js`) |
+| Test runner | Jest 29 |
+| HTTP client | Supertest 6 |
+| Authentication | Bearer token via `ATS_TOKEN` or git-ignored `data/token.json` |
+| Reporting | `jest-html-reporters` → `html-report/report.html` |
+
+Tests are black-box HTTP tests: each case sends a real request to the API and asserts the response status code. Reusable request payloads live in `data/` and are imported into the specs.
+
+## Test coverage
+
+| Module | Suite | Covered endpoints (excerpt) |
+|---|---|---|
+| Auth & users | `Testcase/Auth User/User.test.js` | `POST/GET /api/v1/user`, `GET /api/v1/profile`, `PUT/DELETE /api/v1/user/{id}` |
+| Data master | `Testcase/Data master/Data Master.test.js` | `GET /api/v1/additional_data?type=…` (provinces, roles, departments, job positions, levels, job types, job posting status, applicant stages) |
+| Job posting | `Testcase/Job posting/Job Posting.test.js` | `POST/GET /api/v1/job_posting`, detail by id, active list, activity log, update, delete |
+| Applicants | `Testcase/Applicant/Applicant get Status.test.js` | `GET/POST /api/v1/applicants`, get by id, filter by stage, apply job |
+| Applicant stages | `Testcase/Applicant/Stage Applicant/Applicant update Status.test.js` | `PUT /api/v1/applicants/status` — screening → skill test → HR interview → user interview → offering → hired |
+| Skill test | `Testcase/Skill Test/SkillTest.test.js` | `POST/GET/PUT/DELETE /api/v1/skill_test` |
+| Doc templates | `Testcase/Doc Template/Doc Template.test.js` | `POST/GET /api/v1/doc_templates`, detail by id |
+| Merchant / client | `Testcase/Merchant/Merchant.test.js` | `POST /api/v1/client`, `GET /api/v1/client-username/{username}` |
+| Upload | `Testcase/Upload - cover/uploadCover.test.js` | `POST /api/v1/uploader` (multipart file/image upload) |
+
+Each numbered helper file next to a suite (for example `1. User_CreateUser.js`) is a standalone version of one test case, kept for ad-hoc debugging with `npx jest "path/to/file"`.
+
+## Project structure
+
+```
+ATS-Recruitment/
+├── Testcase/                  # Jest specs, grouped by feature
+│   ├── Applicant/
+│   ├── Auth User/
+│   ├── Data master/
+│   ├── Doc Template/
+│   ├── Job posting/
+│   ├── Merchant/
+│   ├── Skill Test/
+│   └── Upload - cover/
+├── data/                      # Shared config, fixtures, tokens, upload assets
+│   ├── asset/
+│   ├── job/
+│   ├── user/
+│   ├── auth.js                # Resolves the bearer token from env or local file
+│   ├── token.example.json     # Template for the local token file
+│   ├── token.json             # Local, git-ignored bearer token (create it yourself)
+│   └── url.js                 # BASE_URL
+├── html-report/               # Generated HTML test report
+├── jest.config.js             # Jest reporters configuration
+├── package.json
+└── banner.jpg
+```
 
 ## Getting started
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+### Prerequisites
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+- Node.js 18+ and npm
+- Network access to the target API
+- A valid bearer token with access to that API
 
-## Add your files
+### Installation
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.com/iyaaku/privy-jest.git
-git branch -M main
-git push -uf origin main
+```bash
+git clone https://github.com/dikurrrr/ATS-Recruitment.git
+cd ATS-Recruitment
+npm install
 ```
 
-## Integrate with your tools
+### Configuration
 
-- [ ] [Set up project integrations](https://gitlab.com/iyaaku/privy-jest/-/settings/integrations)
+1. **`data/url.js`** — set `BASE_URL` to the environment you want to test against:
 
-## Collaborate with your team
+   ```js
+   const BASE_URL = `https://api.andromeda.axeleration.id`;
+   module.exports.BASE_URL = BASE_URL;
+   ```
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+2. **Bearer token** — supply a fresh, valid JWT in one of two ways:
 
-## Test and Deploy
+   ```bash
+   # Option A: environment variable (recommended for CI)
+   export ATS_TOKEN="<your-bearer-token>"
 
-Use the built-in continuous integration in GitLab.
+   # Option B: local file (git-ignored)
+   cp data/token.example.json data/token.json
+   # then edit data/token.json and paste your token
+   ```
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+   ```json
+   {
+     "token": "<your-bearer-token>"
+   }
+   ```
 
-***
+   `data/auth.js` prefers `ATS_TOKEN` and falls back to `data/token.json`, so all suites share one token. The previously committed token was expired and has been removed from tracking — rotate it on the server too.
 
-# Editing this README
+## Running tests
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+```bash
+npm test                       # run the whole suite with Jest (HTML report included)
+npm test -- --watch            # watch mode
+npm test -- "Testcase/Auth User/User.test.js"   # run a single suite
+npm test -- -t "admin succeed Create user"      # run one test by name
+```
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+`npm run dikur` is kept as a legacy alias for `npm test`. The old `test1` script was removed; `jest.config.js` already produces the HTML report, so a separate script was unnecessary.
 
-## Name
-Choose a self-explaining name for your project.
+## HTML report
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+`jest.config.js` registers `jest-html-reporters`, so every run writes:
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+```
+html-report/report.html
+```
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+Open it in a browser to see pass/fail counts, assertions, console output, and request details.
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+## Good to know
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+- **Live external API:** tests hit a real server, so results depend on its availability and current data.
+- **Hardcoded IDs:** several specs reference fixed UUIDs (users, job postings, applicants, doc templates). Replace them with IDs that exist in your environment.
+- **Stateful flows:** the applicant-stage tests move one applicant through a sequence of statuses; running them repeatedly changes remote data.
+- **Token expiry:** JWTs expire. Refresh `ATS_TOKEN` or `data/token.json` when you see `401 Unauthorized`.
+- **`istrue.js`** is a scratch file using `describe.only`/`it.only` against `reqres.in`, not part of the ATS suite.
+- **Secrets:** `data/token.json` is git-ignored; use `ATS_TOKEN` in CI. Note that the old token still exists in Git history — rotate it on the server and rewrite history if this repo is public.
 
 ## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+Pull requests are welcome. When adding a case:
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+1. Put the spec in the matching folder under `Testcase/` and name it `*.test.js`.
+2. Keep request bodies in `data/` as reusable modules.
+3. Run `npm run dikur` and make sure the suite passes before opening a PR.
 
 ## License
-For open source projects, say how it is licensed.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+ISC — see `package.json`.

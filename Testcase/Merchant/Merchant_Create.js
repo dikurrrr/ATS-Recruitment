@@ -1,7 +1,7 @@
 const request = require('supertest');
 const { createMerchant } = require('../../data/user/createMerchant');
 const { BASE_URL } = require('../../data/url')
-const data = require('../../data/token.json')
+const data = require('../../data/auth')
 
 describe("Superadmin Create Merchant", () => {
   it("admin succeed Create user", async () => {

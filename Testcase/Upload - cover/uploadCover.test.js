@@ -1,7 +1,7 @@
 
 const request = require('supertest');
 const { BASE_URL } = require('../../data/url')
-const data = require('../../data/token.json')
+const data = require('../../data/auth')
 // const image = require('../../data/asset/banner.jpg')
 describe("Superadmin upload file & image", () => {
   it("admin succeed upload file & image", async () => {

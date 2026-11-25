@@ -2,7 +2,7 @@ const request = require('supertest');
 const { createJobPost } = require('../../data/job/postJob');
 const { updateJob } = require('../../data/job/updateJob');
 const { BASE_URL } = require('../../data/url')
-const data = require('../../data/token.json')
+const data = require('../../data/auth')
 
 describe("admin Create job", () => {
   it("admin should succeed Create job", async () => {

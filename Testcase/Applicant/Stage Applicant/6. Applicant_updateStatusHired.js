@@ -1,7 +1,7 @@
 const request = require('supertest');
 const { updateStatusHired } = require('../../../data/user/UpdateStage');
 const { BASE_URL } = require('../../../data/url')
-const data = require('../../../data/token.json')
+const data = require('../../../data/auth')
 
 describe("admin Update Status Hired", () => {
   it("admin Succeed Update Status Hired", async () => {

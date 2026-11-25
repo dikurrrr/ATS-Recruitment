@@ -1,6 +1,6 @@
 const request = require('supertest');
 const { BASE_URL } = require('../../data/url')
-const data = require('../../data/token.json')
+const data = require('../../data/auth')
 
 describe("admin get data JobPostingStatus", () => {
   it("admin Succeed get data JobPostingStatus", async () => {

@@ -4,10 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dikur": "jest",
-    "test1": "jest --reporters=./html-reporter.js"
-    
+    "test": "jest",
+    "dikur": "jest"
   },
   "keywords": [],
   "author": "",

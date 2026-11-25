@@ -1,7 +1,7 @@
 const request = require('supertest');
 const { BASE_URL } = require('../../data/url')
 const {createTemplate} = require('../../data/user/createTemplate')
-const data = require('../../data/token.json')
+const data = require('../../data/auth')
 
 describe("admin Create Template Doc", () => {
   it("admin Create Template Doc", async () => {

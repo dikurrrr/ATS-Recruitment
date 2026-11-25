@@ -1,7 +1,7 @@
 const request = require('supertest');
 const { createUser } = require('../../data/user/createUser');
 const { BASE_URL } = require('../../data/url')
-const data = require('../../data/token.json')
+const data = require('../../data/auth')
 
 describe("Superadmin Create user", () => {
   it("admin succeed Create user", async () => {
